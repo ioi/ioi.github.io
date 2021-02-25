@@ -1,0 +1,22 @@
+# Site settings
+title: IOI Tools
+author: IOI Technical Committee
+email: ioi-tc@lists.ioinformatics.org
+description: >-
+  This site is a collection of tools and documentation used by the organizers
+  of the International Olympiad in Informatics.
+  Committte of the IOI.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
+
+# Build settings
+markdown: kramdown
+theme: minima
+#plugins:
+#  - jekyll-feed
+
+# Exclude from processing.
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
