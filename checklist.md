@@ -215,3 +215,6 @@ Java requires a large memory margin, otherwise it runs the garbage collector too
 
 - The HTC requested HSC to design the Practice Contest such that it has a greater grading workload as compared to the shortlisted problem sets for Day 1 and Day 2. This was very useful as HTC could use the Practice Contest as a dry-run and estimate what to expect for Day 1 and Day 2.
 
+- Tinc was chosen as the VPN solution for connecting Contestant VMs to the contest infrastructure on AWS.
+
+- Ansible was extensively used to configure CMS deployments as well as contestant VMs.
