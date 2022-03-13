@@ -85,10 +85,17 @@ To attain more deterministic execution times on contestant machines and workers,
 - Consider disabling Turboboost on CPUs that might support it (most i3/i5/i7 Intel CPUs). Approach this one with caution. Disabling a CPU that Turboboosts from 2.3 GHz to 2.6 GHz would have minimal impact on run-times in exchange for determinism, but the same on a CPU that Turboboosts from 1.6 GHz to 2.8 GHz will incur a much more dramatic slowdown. Perhaps if the ambient temperature is controlled and only one single-threaded task is keeping the CPU busy at 100%, then TB's behaviour may be reasonably deterministic - requires further experimentation to confirm.
 - Java: In 2017, it was found that the run-time of the JVM was made much more deterministic by adding the following flags to the invocation of java: `-Xbatch -XX:+UseSerialGC -XX:-TieredCompilation -XX:CICompilerCount=1`. These remove some (but not all) sources of non-deterministic scheduling and execution.
 - Make sure that kernel support for transparent huge pages is disabled: `/sys/kernel/mm/transparent_hugepage/enabled` and `/sys/kernel/mm/transparent_hugepage/defrag` should be set to `madvise` or `never`, `/sys/kernel/mm/transparent_hugepage/khugepaged/defrag` to 0.
+- Consider using isolcpu to prevent the OS from scheduling processes on the same CPU as the ones used for evaluation.
+- Consider disabling hyperthreading on CPUs that support it (most Intel CPUs)
+- In IOI 2020/2021, workers were AWS c5.metal instances. It was concluded that using bare metal instances resulted in more deterministic execution times as supposed to non-bare metal instances.
+- In some instances, specifying CPU idle states in BIOS did help increase determinism. (i.e. Adding intel_idle.max_cstate=0,intel_pstate=disable to GRUB_CMDLINE_LINUX)
 
 ## Web servers
 
 - nginx is often used as a load-balancer for CWS and other services. The `ip_hash` parameter in nginx will only hash the first 3 octets of an IPv4 address (i.e. 192.168.123.xx). In some setups, these octets will always be nearly the same. In such cases, don't use ip_hash. Instead use hash: `hash $remote_addr consistent;`
+
+- In IOI 2020, it was found that the browsers on some contestant VMs cached the PDF statements and attachments. When there is an update to these files, it was troublesome to invalidate the cache in order to receive the new versions. A quick fix was to instead configure nginx to always instruct the browser to not cache any files from CMS. i.e. `proxy_hide_header "Cache-Control"; add_header 'Cache-Control' "no-store, no-cache, must-revalidate, max-age=0";`
+
 
 ## Mass imaging of contestant machines and workers
 
@@ -135,6 +142,7 @@ The steps for deleting, adding, and replacing test cases, changing bounds, etc, 
 - Dealing with faulty workers: unplug a worker and ensure judging continues (not the same as stopping the CMS process, as this results in "connection refused", whereas unplugging it results in no response which is more likely if the hardware or network has failed)
 
 - Power outages: if backup power systems are in place, they should be tested.
+- Load test ContestWebService by simulating all the contestants downloading statements and attachments at once. In IOI 2020/2021, this was performed using apache bench.
 
 ## Practice Competition
 
@@ -191,3 +199,22 @@ Clearing the database between day1 and 2 caused submission ids to be reused, and
 Using LogService may make it easier to monitor issues across all services.
 
 Java requires a large memory margin, otherwise it runs the garbage collector too often, which leads to slowdown. We used 2GB for all tasks.
+
+
+## Notes from 2020 and 2021 (online IOI format)
+
+- There is an implicit limit of 100 workers assumed by CMS in `cms/grading/Sandbox.py`, do update the `box_id` allocation method when using more than 100 workers.
+
+- When there is a huge number of workers, CMS's `EvaluationService` becomes a bottleneck when distributing tasks to workers. It was found that running `EvaluationService` on a host with faster CPU and low latency to the postgres database improved the overall regrading time. In IOI 2020 and 2021, AWS z1d instances were specifically selected for the `EvaluationService`.
+
+- CMS workers downloads testcases from the postgres database instance. When workers are located remotely (e.g. in a separate AWS region) from the database instance, it takes the workers a significant amount of time to retrieve these testcases. A potential solution is to pre-cache all the testcases on every worker instance before the start of the contest. This can be sped up by first having a worker with all the testcases pre-cached, then copying the fs-cache directory to remote workers. The fs-cache directory could be found at `/var/local/cache/cms/fs-cache-shared/`. 
+
+- Browser histories are useful information that could be logged/stored for use in handling appeals.
+
+- In IOI 2021, using AWS Global Accelerator improved latency and bandwidth to various contest sites significantly, albeit at an increased cost to the host. In IOI 2020, when it was not used, ping latencies to some contestant VMs averaged at 700-900ms consistently. In IOI 2021, when AWS Global Accelerator was used, the highest ping latencies observed were less than 500ms. Do note that this could also be due to improved connectivity on the part of each country's local setup, but its worth pointing out that the host of IOI 2021 have had positive experiences with AWS Global Accelerator.
+
+- The HTC requested HSC to design the Practice Contest such that it has a greater grading workload as compared to the shortlisted problem sets for Day 1 and Day 2. This was very useful as HTC could use the Practice Contest as a dry-run and estimate what to expect for Day 1 and Day 2.
+
+- Tinc was chosen as the VPN solution for connecting Contestant VMs to the contest infrastructure on AWS.
+
+- Ansible was extensively used to configure CMS deployments as well as contestant VMs.
