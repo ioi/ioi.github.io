@@ -168,7 +168,7 @@ There is little time between the end of the competition and the start of appeals
 
 ## Organisational aspects
 
-- secrecy of tasks: there may be reasons to keep task details largely secret from the technical committee until quite close to the IOI. But some overlap between HTC and HSC must exist, and is responsible for validating final tasks on contest environment
+- Secrecy of tasks: there may be reasons to keep task details largely secret from the technical committee until quite close to the IOI. But some overlap between HTC and HSC must exist, and is responsible for validating final tasks on contest environment
 
 - Take timestamped notes of when stuff happens, as this is invaluable for determining which students might have affected by any issues and for how long.
 
