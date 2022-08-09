@@ -45,7 +45,7 @@ Typical mid-range laptops are suitable. Identical machines will make life signif
 - Note that sometimes laptop suppliers can set the desired BIOS configuration pre-delivery, so worth asking before doing it yourself on all machines!
 - Some HP BIOSes fallback to a “failsafe” menu boot mode after several unsuccessful boot attempts, requiring human intervention. Ideally, this should be disabled. In the scenario of a few failed boot attempts during imaging, the second last thing you want to do is have to manually reboot 350 machines. The last thing you want to do is reboot 350 machines by navigating through menus.
 
-- At some early stage in the contest hall setup, memtest and badblocks should be executed on every machine. New machines typically fare okay, but second-hand machines may reveal problems. Machines with bad memory and/or bad disk blocks should not be used. Although workarounds exist to ignore bad memory blocks (with the badram kernel patch), and bad disk blocks (ext2/3/4 can maintain a bad block list), failures often tend to spread further.
+- At some early stage in the contest hall setup, `memtest86`, `badblocks`, and `smartctl` should be executed on every machine. New machines typically fare okay, but second-hand machines may reveal problems. Machines with bad memory and/or bad disk blocks should not be used. Although workarounds exist to ignore bad memory blocks and bad disk blocks, failures often tend to spread further.
 
 Software configuration:
 - The list of software packages is generally best based off previous years installations. While a specific Linux distribution is not mandated, recent IOIs have used current Ubuntu releases, largely for pragmatic reasons: the CMS software has seen a large amount of testing on Ubuntu, and keeping the workers, servers, and contestant machines largely uniform is easier to manage.
@@ -67,7 +67,7 @@ Extra configuration steps which should be performed on each machine:
 - setup remote syslog so that log messages are sent in real-time are not lost in the event of a desktop crash. A remote log server should be set up to receive them. e.g. rsyslog which can write each machine's log to a separate file.
 - TODO: publish sample debian packages for contestant machines
 - Set stack limit to match the value used by CMS (infinity), for example in `/etc/security/limits.conf`
-- Firefox sometimes saves downloaded files into $TMPDIR (e.g. if "Open with..." is used). This may lead some students to save their work in /tmp, which will unknowingly be lost on reboot. A safe solution would be to wrap Firefox with a script to set TMPDIR=$HOME/tmp/ first (and mkdir the directory).
+- Firefox sometimes saves downloaded files into `$TMPDIR` (e.g. if "Open with..." is used). This may lead some students to save their work in /tmp, which will unknowingly be lost on reboot. A safe solution would be to wrap Firefox with a script to set `TMPDIR=$HOME/tmp/` first (and mkdir the directory).
 
 - Distribute as much as possible by some versioned means (e.g. CMS or a SCM tool).
   - Debian packages can be created which maintain a list of dependencies and/or include files to be placed anywhere on the filesystem. A locally-hosted apt repository can make the maintenance of machines much easier.
@@ -140,8 +140,8 @@ Depending on your network and hardware, no further optimisation may be required.
 
 ## Things to simulate before the contest
 
-- simulate entire contest
-- while(1) solutions
+- simulate entire contest (we have dumps from previous years in the ITC archive)
+- `while(1)` solutions
 - deleting, adding and replacing test cases, while the competition is in flight. Can you re-evaluate everything in time?
 
 The steps for deleting, adding, and replacing test cases, changing bounds, etc, should be documented so that in the heat of the contest, no steps are forgotten.
@@ -190,7 +190,7 @@ There is little time between the end of the competition and the start of appeals
 
 - Internet access is needed during translation of tasks.
 
-- People still use WiFi clients which support only the 2.4 GHz band. Preferably set up a different ESSID in this band, so that it will be occupied only by people who require it.
+- 2019: People still use WiFi clients which support only the 2.4 GHz band. Preferably set up a different ESSID in this band, so that it will be occupied only by people who require it.
 
 - DHCP servers embedded in cheap routers are generally crappy. Use a Linux machine as a DHCP server instead. This applies even to the translation network.
 
@@ -198,15 +198,15 @@ There is little time between the end of the competition and the start of appeals
 
 ## Notes from 2015
 
-pg_dump / pg_reload unreliable with LO. Related to auto vacuum maybe? Check errors!
+- pg_dump / pg_reload unreliable with LO. Related to auto vacuum maybe? Check errors!
 
-RWS, using at least 10 Mbit/sec BW at the end of the competition.
+- RWS, using at least 10 Mbit/sec BW at the end of the competition.
 
-Clearing the database between day1 and 2 caused submission ids to be reused, and id clashes in RWS. This can be avoided by using the same database, or simply change all ids in day1 to avoid clashes (e.g., prepending "A"). This will be fixed in the CMS repository.
+- Clearing the database between day1 and 2 caused submission ids to be reused, and id clashes in RWS. This can be avoided by using the same database, or simply change all ids in day1 to avoid clashes (e.g., prepending "A"). This will be fixed in the CMS repository.
 
-Using LogService may make it easier to monitor issues across all services.
+- Using LogService may make it easier to monitor issues across all services.
 
-Java requires a large memory margin, otherwise it runs the garbage collector too often, which leads to slowdown. We used 2GB for all tasks.
+- Java requires a large memory margin, otherwise it runs the garbage collector too often, which leads to slowdown. We used 2GB for all tasks.
 
 
 ## Notes from 2020 and 2021 (online IOI format)
