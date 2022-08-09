@@ -77,18 +77,26 @@ Extra configuration steps which should be performed on each machine:
 
 ## Determinism
 
-To attain more deterministic execution times on contestant machines and workers, some kernel and system settings should be tuned. The isolate sandbox ships with a script called [isolate-check-environment](https://github.com/ioi/isolate/blob/master/isolate-check-environment) that validates and can alter the configuration for many (but not all) of the settings below.
+To attain more deterministic execution times on contestant machines and workers, some kernel and system settings should be tuned.
+See [manual page](https://www.ucw.cz/moe/isolate.1.html) of the isolate sandbox
+and the [isolate-check-environment](https://github.com/ioi/isolate/blob/master/isolate-check-environment) script
+that validates and can alter the configuration for many (but not all) of the settings below.
 
 - Disable Linux's address space randomisation (set `/proc/sys/kernel/randomize_va_space` to 0, using an entry in `/etc/sysctl.d/`)
 - Run evaluations on a single CPU. The Linux scheduler has a tendency to randomly migrate tasks between CPUs, incurring cache migration costs. Use isolate's configuration file to pin a task to a single CPU and prevent migration (also, this prevents contestants from getting extra cache by running multiple threads)
-- Set the cpufreq governor to "performance" to prevent dynamic CPU frequency control (mostly, see Turboboost below)
-- Consider disabling Turboboost on CPUs that might support it (most i3/i5/i7 Intel CPUs). Approach this one with caution. Disabling a CPU that Turboboosts from 2.3 GHz to 2.6 GHz would have minimal impact on run-times in exchange for determinism, but the same on a CPU that Turboboosts from 1.6 GHz to 2.8 GHz will incur a much more dramatic slowdown. Perhaps if the ambient temperature is controlled and only one single-threaded task is keeping the CPU busy at 100%, then TB's behaviour may be reasonably deterministic - requires further experimentation to confirm.
+- For interactive tasks, it is often better to keep both the solution and the grader on the same logical CPU.
+  (Also, allocation of sandbox IDs in CMS is chaotic, so it is hard to pin the solution to one core and the grader to a different one.)
+- Set the cpufreq governor to "performance" to prevent dynamic CPU frequency control.
+- Consider disabling frequency boosting on CPUs that might support it (this includes most i3/i5/i7 Intel CPUs and the AMD Zen architecture).
+  This is done either by writing 1 to `/sys/devices/system/cpu/intel_pstate/no_turbo` (on Intel CPUs)
+  or by writing 0 to `/sys/devices/system/cpu/cpufreq/boost` (other machines).
 - Java: In 2017, it was found that the run-time of the JVM was made much more deterministic by adding the following flags to the invocation of java: `-Xbatch -XX:+UseSerialGC -XX:-TieredCompilation -XX:CICompilerCount=1`. These remove some (but not all) sources of non-deterministic scheduling and execution.
 - Make sure that kernel support for transparent huge pages is disabled: `/sys/kernel/mm/transparent_hugepage/enabled` and `/sys/kernel/mm/transparent_hugepage/defrag` should be set to `madvise` or `never`, `/sys/kernel/mm/transparent_hugepage/khugepaged/defrag` to 0.
-- Consider using isolcpu to prevent the OS from scheduling processes on the same CPU as the ones used for evaluation.
-- Consider disabling hyperthreading on CPUs that support it (most Intel CPUs)
+- Consider using the `isolcpu` kernel parameter to prevent the OS from scheduling regular processes on the same CPU as the ones used for evaluation.
+- Consider disabling hyperthreading on CPUs that support it (most Intel CPUs).
 - In IOI 2020/2021, workers were AWS c5.metal instances. It was concluded that using bare metal instances resulted in more deterministic execution times as supposed to non-bare metal instances.
-- In some instances, specifying CPU idle states in BIOS did help increase determinism. (i.e. Adding intel_idle.max_cstate=0,intel_pstate=disable to GRUB_CMDLINE_LINUX)
+- In some instances, specifying CPU idle states in BIOS did help increase determinism.
+  (I.e., adding `intel_idle.max_cstate=0,intel_pstate=disable` to `GRUB_CMDLINE_LINUX`.)
 
 ## Web servers
 
