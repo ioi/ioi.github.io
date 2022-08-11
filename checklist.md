@@ -102,6 +102,8 @@ that validates and can alter the configuration for many (but not all) of the set
 
 - nginx is often used as a load-balancer for CWS and other services. The `ip_hash` parameter in nginx will only hash the first 3 octets of an IPv4 address (i.e. 192.168.123.xx). In some setups, these octets will always be nearly the same. In such cases, don't use ip_hash. Instead use hash: `hash $remote_addr consistent;`
 
+  - It is convenient to log request processing time, so that you can tell if the server was overloaded at a given time.
+
 - In IOI 2020, it was found that the browsers on some contestant VMs cached the PDF statements and attachments. When there is an update to these files, it was troublesome to invalidate the cache in order to receive the new versions. A quick fix was to instead configure nginx to always instruct the browser to not cache any files from CMS. i.e. `proxy_hide_header "Cache-Control"; add_header 'Cache-Control' "no-store, no-cache, must-revalidate, max-age=0";`
 
 
