@@ -106,6 +106,8 @@ that validates and can alter the configuration for many (but not all) of the set
 
 - In IOI 2020, it was found that the browsers on some contestant VMs cached the PDF statements and attachments. When there is an update to these files, it was troublesome to invalidate the cache in order to receive the new versions. A quick fix was to instead configure nginx to always instruct the browser to not cache any files from CMS. i.e. `proxy_hide_header "Cache-Control"; add_header 'Cache-Control' "no-store, no-cache, must-revalidate, max-age=0";`
 
+- DNS entries for the CMS and public rank list should have small TTL (on the order of minutes), so that they can be changed should things go wrong. (In 2023, ranking web server was blackholed by DDOS protections of the cloud vendor and we wanted to relocate it quickly.)
+
 
 ## Mass imaging of contestant machines and workers
 
