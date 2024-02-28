@@ -73,7 +73,7 @@ Extra configuration steps which should be performed on each machine:
 - some machines beep too loudly. Blacklist pcspkr module if needed.
 - setup remote syslog so that log messages are sent in real-time are not lost in the event of a desktop crash. A remote log server should be set up to receive them. e.g. rsyslog which can write each machine's log to a separate file.
 - Set stack limit to match the value used by CMS (infinity), for example in `/etc/security/limits.conf`
-- Firefox sometimes saves downloaded files into `$TMPDIR` (e.g. if "Open with..." is used). This may lead some students to save their work in /tmp, which will unknowingly be lost on reboot. A safe solution would be to wrap Firefox with a script to set `TMPDIR=$HOME/tmp/` first (and mkdir the directory).
+- Firefox sometimes saves downloaded files into `$TMPDIR` (e.g. if "Open with..." is used). This may lead some students to save their work in /tmp, which will unknowingly be lost on reboot. A safe solution would be to wrap Firefox with a script to set `TMPDIR=$HOME/tmp/` first (and mkdir the directory). Or perhaps set `TMPDIR` for the whole desktop session.
 - Distribute as much as possible by some versioned means (e.g. CMS or a SCM tool).
   - Debian packages can be created which maintain a list of dependencies and/or include files to be placed anywhere on the filesystem. A locally-hosted apt repository can make the maintenance of machines much easier.
   - e.g. a ioi-contestant-software package can depend on all provided software versions. an ioi-contestant-settings package can install any miscellaneous configuration and tweaks required.
