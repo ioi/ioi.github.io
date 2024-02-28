@@ -187,6 +187,12 @@ There is little time between the end of the competition and the start of appeals
 - DHCP servers embedded in cheap routers are generally crappy. Use a Linux machine as a DHCP server instead. This applies even to the translation network.
 - Avoid NAT between parts of the network, it makes debugging of faults harder. Generally, try to keep things as simple as possible.
 
+## Printing of translations
+
+- The volume of task statements including translations is quite large. For example, English statements of Day 1 in 2023 had 16 pages. Multiplied by 360 contestants, it is almost 6000 pages for English only.
+- Having at least 3 printers capable of printing at least 50 pages per minute is desirable.
+- For 2024, we plan to print everything for a single contestant as a single print job with a banner sheet containing the ID of the contestant and expected contents of their envelope.
+
 ## Notes from 2015
 
 - pg_dump / pg_reload unreliable with LO. Related to auto vacuum maybe? Check errors!
@@ -206,9 +212,3 @@ There is little time between the end of the competition and the start of appeals
 - The HTC requested HSC to design the Practice Contest such that it has a greater grading workload as compared to the shortlisted problem sets for Day 1 and Day 2. This was very useful as HTC could use the Practice Contest as a dry-run and estimate what to expect for Day 1 and Day 2.
 - Tinc was chosen as the VPN solution for connecting Contestant VMs to the contest infrastructure on AWS.
 - Ansible was extensively used to configure CMS deployments as well as contestant VMs.
-
-## Printing of translations
-
-- The volume of task statements including translations is quite large. For example, English statements of Day 1 in 2023 had 16 pages. Multiplied by 360 contestants, it is almost 6000 pages for English only.
-- Having at least 3 printers capable of printing at least 50 pages per minute is desirable.
-- For 2024, we plan to print everything for a single contestant as a single print job with a banner sheet containing the ID of the contestant and expected contents of their envelope.
