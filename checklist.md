@@ -156,7 +156,7 @@ The steps for deleting, adding, and replacing test cases, changing bounds, etc, 
 
 ## Contest procedures
 
-- How will the students request clarifications? Some students may not be able to input questions in their native language on a keyboard, so will require a paper form to allow translation.
+- How will the students request clarifications? Some students may not be able to input questions in their native language on a keyboard, so will require a paper form to allow translation. (IOI 2022: Matrix used to send photos of the forms to the GA mailing list for translation.)
 - Will the students have paper and pens?
 - Will the students be provided with food and water? (Dry snacks are preferable, without noisy wrappers)
 - Announcements should be published in a known place accessible from the students computer. No verbal announcements should be made, other than “There is an announcement. See the announcements page”. Students should also know to check the announcements page after bathroom breaks.
