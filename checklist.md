@@ -49,7 +49,6 @@ Typical mid-range laptops are suitable. Identical machines will make life signif
   - All unused peripherals should be disabled in the BIOS (e.g. WiFi, sound, Bluetooth, etc), depending on the BIOS.
 - Note that sometimes laptop suppliers can set the desired BIOS configuration pre-delivery, so worth asking before doing it yourself on all machines!
 - Some HP BIOSes fallback to a “failsafe” menu boot mode after several unsuccessful boot attempts, requiring human intervention. Ideally, this should be disabled. In the scenario of a few failed boot attempts during imaging, the second last thing you want to do is have to manually reboot 350 machines. The last thing you want to do is reboot 350 machines by navigating through menus.
-
 - At some early stage in the contest hall setup, `memtest86`, `badblocks`, and `smartctl` should be executed on every machine. New machines typically fare okay, but second-hand machines may reveal problems. Machines with bad memory and/or bad disk blocks should not be used. Although workarounds exist to ignore bad memory blocks and bad disk blocks, failures often tend to spread further.
 
 Software configuration:
@@ -73,7 +72,6 @@ Extra configuration steps which should be performed on each machine:
 - TODO: publish sample debian packages for contestant machines
 - Set stack limit to match the value used by CMS (infinity), for example in `/etc/security/limits.conf`
 - Firefox sometimes saves downloaded files into `$TMPDIR` (e.g. if "Open with..." is used). This may lead some students to save their work in /tmp, which will unknowingly be lost on reboot. A safe solution would be to wrap Firefox with a script to set `TMPDIR=$HOME/tmp/` first (and mkdir the directory).
-
 - Distribute as much as possible by some versioned means (e.g. CMS or a SCM tool).
   - Debian packages can be created which maintain a list of dependencies and/or include files to be placed anywhere on the filesystem. A locally-hosted apt repository can make the maintenance of machines much easier.
   - e.g. a ioi-contestant-software package can depend on all provided software versions. an ioi-contestant-settings package can install any miscellaneous configuration and tweaks required.
@@ -149,7 +147,6 @@ The steps for deleting, adding, and replacing test cases, changing bounds, etc, 
 
 - Dealing with faulty contestant machines: moving a student or replacing their machine
 - Dealing with faulty workers: unplug a worker and ensure judging continues (not the same as stopping the CMS process, as this results in "connection refused", whereas unplugging it results in no response which is more likely if the hardware or network has failed)
-
 - Power outages: if backup power systems are in place, they should be tested.
 - Load test ContestWebService by simulating all the contestants downloading statements and attachments at once. In IOI 2020/2021, this was performed using apache bench.
 
@@ -178,60 +175,40 @@ There is little time between the end of the competition and the start of appeals
 ## Organisational aspects
 
 - Secrecy of tasks: there may be reasons to keep task details largely secret from the technical committee until quite close to the IOI. But some overlap between HTC and HSC must exist, and is responsible for validating final tasks on contest environment
-
 - Take timestamped notes of when stuff happens, as this is invaluable for determining which students might have affected by any issues and for how long.
-
 - Make sure that the people communicating with contestants before the contest (forum at the website, e-mails, official Facebook, etc.) are familiar with contest rules, e.g., what are the contestants allowed to bring to the contest hall.
-
 - Plan how to update the public website during the contest. At the start of each competition day, publish a link to the online rank list and also the task statements. (Some team leaders are going to put them online anyway, so better do it officially.)
 
 ## Translation (and other) network infrastructure
 
 - With the number of attendees at an IOI, a DHCP pool with anything less than 1000 IP addresses will NOT be sufficient, and will almost certainly end up with people unable to connect due to exhaustion of DHCP leases. Ensure all networks to be used by the IOI leaders/guests, have at least 1000 IPs (/22), and any networks for all attendees have at least 2000 or 4000 IPs (/20).
-
 - Internet access is needed during translation of tasks.
-
 - 2019: People still use WiFi clients which support only the 2.4 GHz band. Preferably set up a different ESSID in this band, so that it will be occupied only by people who require it.
-
 - DHCP servers embedded in cheap routers are generally crappy. Use a Linux machine as a DHCP server instead. This applies even to the translation network.
-
 - Avoid NAT between parts of the network, it makes debugging of faults harder. Generally, try to keep things as simple as possible.
 
 ## Notes from 2015
 
 - pg_dump / pg_reload unreliable with LO. Related to auto vacuum maybe? Check errors!
-
 - RWS, using at least 10 Mbit/sec BW at the end of the competition.
-
 - Clearing the database between day1 and 2 caused submission ids to be reused, and id clashes in RWS. This can be avoided by using the same database, or simply change all ids in day1 to avoid clashes (e.g., prepending "A"). This will be fixed in the CMS repository.
-
 - Using LogService may make it easier to monitor issues across all services.
-
 - Java requires a large memory margin, otherwise it runs the garbage collector too often, which leads to slowdown. We used 2GB for all tasks.
-
 
 ## Notes from 2020 and 2021 (online IOI format)
 
 - There is an implicit limit of 100 workers assumed by CMS in `cms/grading/Sandbox.py`, do update the `box_id` allocation method when using more than 100 workers.
-
 - When there is a huge number of workers, CMS's `EvaluationService` becomes a bottleneck when distributing tasks to workers. It was found that running `EvaluationService` on a host with faster CPU and low latency to the postgres database improved the overall regrading time. In IOI 2020 and 2021, AWS z1d instances were specifically selected for the `EvaluationService`.
-
 - CMS workers downloads testcases from the postgres database instance. When workers are located remotely (e.g. in a separate AWS region) from the database instance, it takes the workers a significant amount of time to retrieve these testcases. A potential solution is to pre-cache all the testcases on every worker instance before the start of the contest. This can be sped up by first having a worker with all the testcases pre-cached, then copying the fs-cache directory to remote workers. The fs-cache directory could be found at `/var/local/cache/cms/fs-cache-shared/`. 
 
 - Browser histories are useful information that could be logged/stored for use in handling appeals.
-
 - In IOI 2021, using AWS Global Accelerator improved latency and bandwidth to various contest sites significantly, albeit at an increased cost to the host. In IOI 2020, when it was not used, ping latencies to some contestant VMs averaged at 700-900ms consistently. In IOI 2021, when AWS Global Accelerator was used, the highest ping latencies observed were less than 500ms. Do note that this could also be due to improved connectivity on the part of each country's local setup, but its worth pointing out that the host of IOI 2021 have had positive experiences with AWS Global Accelerator.
-
 - The HTC requested HSC to design the Practice Contest such that it has a greater grading workload as compared to the shortlisted problem sets for Day 1 and Day 2. This was very useful as HTC could use the Practice Contest as a dry-run and estimate what to expect for Day 1 and Day 2.
-
 - Tinc was chosen as the VPN solution for connecting Contestant VMs to the contest infrastructure on AWS.
-
 - Ansible was extensively used to configure CMS deployments as well as contestant VMs.
 
 ## Printing of translations
 
 - The volume of task statements including translations is quite large. For example, English statements of Day 1 in 2023 had 16 pages. Multiplied by 360 contestants, it is almost 6000 pages for English only.
-
 - Having at least 3 printers capable of printing at least 50 pages per minute is desirable.
-
 - For 2024, we plan to print everything for a single contestant as a single print job with a banner sheet containing the ID of the contestant and expected contents of their envelope.
