@@ -139,14 +139,6 @@ Depending on your network and hardware, no further optimisation may be required.
 - pg_dump may refuse to complete on a slave if there are rows being deleted from the database. So you should stop replication first, or dump on the primary.
 - pg_reload from a dumped SQL file can be unreliable with LO. Always check for errors when restoring the database, and check that large objects get restored correctly. The bug may be related to auto vacuum co-inciding with restore.
 
-## Printing
-
-- In IOI 2015, a custom cups filter was used to watermark each page of a printout, and add front and back pages. See https://github.com/ioi/ioi-utilities/tree/master/print-filter for details.
-- In IOI 2014, a header page was created for each printout. The header page contained the contestant's name and the seat number, so that the runner can deliver it efficiently. It also contained an image, which was impossible to be generated on contestant's machines, in order to prevent attacks using fake header pages. Two different images were used on different contest days.
-- Delivering printouts is non-trivial. Train the runners:
-  - how to identify a single print job
-  - how to identify the correct table to deliver to
-
 ## Things to simulate before the contest
 
 - simulate entire contest (we have dumps from previous years in the ITC archive)
@@ -235,3 +227,11 @@ There is little time between the end of the competition and the start of appeals
 - Tinc was chosen as the VPN solution for connecting Contestant VMs to the contest infrastructure on AWS.
 
 - Ansible was extensively used to configure CMS deployments as well as contestant VMs.
+
+## Printing of translations
+
+- The volume of task statements including translations is quite large. For example, English statements of Day 1 in 2023 had 16 pages. Multiplied by 360 contestants, it is almost 6000 pages for English only.
+
+- Having at least 3 printers capable of printing at least 50 pages per minute is desirable.
+
+- For 2024, we plan to print everything for a single contestant as a single print job with a banner sheet containing the ID of the contestant and expected contents of their envelope.
