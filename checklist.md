@@ -35,6 +35,8 @@ An intuitive IP addressing scheme is very helpful for diagnosing problems on the
 
 The parts of the network accessible from the outside (public website, online rank list) should be separated from the contest network as much as possible. In particular, a denial of service attack coming from the outside must not affect the competition.
 
+If you plan to prepare the machines at another location and move them to the final place soon before the start of the contest, plan for that in advance and preferably design an addressing scheme that works in both locations.
+
 ## Desktop environment setup
 
 Typical mid-range laptops are suitable. Identical machines will make life significantly easier. However, past IOIs have been held with slight variations in machine specifications, and made fair by (1) a random allocation of student to machine; (2) ensuring all judging machines (“workers” in CMS-lingo) are identical (3) providing the ability for students to execute test runs on the workers.
