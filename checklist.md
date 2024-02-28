@@ -11,8 +11,13 @@ matters you might need address when hosting an IOI.
 
 There are several required and desirable features in networking infrastructure for an IOI:
 
-- required: the ability to prevent communication between PCs and outside world
-- desirable: support for multicast for imaging (preferably at Gigabit to all hosts, or at least 100 Mbps). Do a quick calculation of the time needed to re-image all computers.
+- the ability to prevent communication between PCs and outside world
+- sufficient speed:
+    - 1 Gbps for contestant machines
+    - 1 Gbps for grading workers
+    - preferably 10 Gpbs for servers
+    - preferably 10 Gpbs for backbone between switches
+- desirable: support for multicast for imaging. Do a quick calculation of the time needed to re-image all computers.
 - desirable: intuitive IP addressing scheme to allow for quick diagnosis
 
 To prevent contestant PCs communicating, there are several options:
