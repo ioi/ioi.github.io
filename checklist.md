@@ -168,7 +168,7 @@ The steps for deleting, adding, and replacing test cases, changing bounds, etc, 
 There is little time between the end of the competition and the start of appeals. You should rehearse what will happen in this time:
 - Judging needs to complete. Perhaps a re-judge to ensure stability of results (border-line timeout cases are inevitably going to change the results, so don't worry if they do but stick with the results shown to the students the first time!)
 - The state of the contest database should be dumped for posterity.
-- Test data must be made available to students, along with a mechanism to allow students to run their solutions on the provided test data. CMS now provides an "appeals mode" to support this.
+- Test data must be made available to students, along with a mechanism to allow students to run their solutions on the provided test data. CMS now provides an "analysis mode" to support this.
 - Students should be able to download their submissions (on day 2, you may want to provide access to both day 1 and day 2 submissions)
 - Appeals forms should be ready.
 
