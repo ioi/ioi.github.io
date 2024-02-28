@@ -79,6 +79,7 @@ Extra configuration steps which should be performed on each machine:
   - e.g. a ioi-contestant-software package can depend on all provided software versions. an ioi-contestant-settings package can install any miscellaneous configuration and tweaks required.
   - At IOI 2013, CMS was packaged as Debian packages which were deployed to server and worker machines
   - CEOI2015 used Git to distribute CMS to workers.
+  - Some IOIs also used Ansible.
 
 ## Determinism
 
