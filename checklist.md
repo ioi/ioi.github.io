@@ -42,6 +42,7 @@ If you plan to prepare the machines at another location and move them to the fin
 Typical mid-range laptops are suitable. Identical machines will make life significantly easier. However, past IOIs have been held with slight variations in machine specifications, and made fair by (1) a random allocation of student to machine; (2) ensuring all judging machines (“workers” in CMS-lingo) are identical (3) providing the ability for students to execute test runs on the workers.
 
 - Hardware configuration:
+  - at least 16 GB of RAM – as of 2023, about 50% of contestants preferred VS Code, which is quite memory-hungry.
   - Keyboard: ISO physical layout is strongly recommended (it has an extra key between the left shift and Z, which is used in some national layouts)
   - Mouse: a symmetrical one (some people will use it with their left hand)
 
