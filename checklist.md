@@ -19,12 +19,13 @@ There are several required and desirable features in networking infrastructure f
     - preferably 10 Gpbs for backbone between switches
 - desirable: support for multicast for imaging. Do a quick calculation of the time needed to re-image all computers.
 - desirable: intuitive IP addressing scheme to allow for quick diagnosis
+- desirable: a local DNS server (synchronizing `/etc/hosts` is painful)
 
 To prevent contestant PCs communicating, there are several options:
 
 - put each machine onto its own individual VLAN
   - something must be responsible for routing between the individual VLANs and the contest web server (and other services). This could be a network switch performing layer 3 routing (with appropriate firewalling), or each contest server could itself be present on every individual VLAN using 802.1q tagging. A network switch performing layer 3 routing is preferable, because this also allows multicast traffic to span all VLANs. (If the imaging server must itself register onto each VLAN, then the ability to multicast is lost).
-  - some Cisco hardware supports the concept of a “Private VLAN”. Machines on a Private VLAN can only send traffic to a designated upstream machine, effectively isolating them from all other machines on the same ethernet segment. This also easily supports multicast
+- some Cisco hardware supports the concept of a “Private VLAN”. Machines on a Private VLAN can only send traffic to a designated upstream machine, effectively isolating them from all other machines on the same ethernet segment. This also easily supports multicast
 
 An intuitive IP addressing scheme is very helpful for diagnosing problems on the fly. This can be achieved in several ways, but all require some customisation of the DHCP server:
 
@@ -47,7 +48,7 @@ Typical mid-range laptops are suitable. Identical machines will make life signif
   - Mouse: a symmetrical one (some people will use it with their left hand)
 
 - BIOS settings:
-  - boot order: the machines should be configured to boot from the network and then hard disk only. Booting from external media should be prevented.
+  - boot order: the machines should be configured to boot from the network and then local disk only. Booting from external media should be prevented.
   - A BIOS password is good for extra security.
   - All unused peripherals should be disabled in the BIOS (e.g. WiFi, sound, Bluetooth, etc), depending on the BIOS.
 - Note that sometimes laptop suppliers can set the desired BIOS configuration pre-delivery, so worth asking before doing it yourself on all machines!
@@ -61,7 +62,7 @@ Extra configuration steps which should be performed on each machine:
 - steps to lockdown the software environment:
   - remove user from all groups
 - disable swap
-  - it defeats the memory limits of isolate (unless CONFIG_MEMCG_SWAP is enabled and possibly swapaccount=1 on the kernel command-line)
+  - it defeats the memory limits of isolate (unless CONFIG_MEMCG_SWAP is enabled and possibly `swapaccount=1` on the kernel command-line)
   - it is generally unnecessary on machines with 4GB of RAM or more
   - most importantly, machines are close to unusable when heavily swapping (need not apply if you are swapping to an SSD)
 - disable access to external USB media by either:
@@ -71,14 +72,15 @@ Extra configuration steps which should be performed on each machine:
 - disable and remove network manager, replace with a network configuration based on `/etc/network/interfaces` and ifupdown
 - check all suid programs and remove suid bit except where really needed (see also `dpkg-statoverride`)
 - some machines beep too loudly. Blacklist pcspkr module if needed.
-- setup remote syslog so that log messages are sent in real-time are not lost in the event of a desktop crash. A remote log server should be set up to receive them. e.g. rsyslog which can write each machine's log to a separate file.
+- setup remote syslog so that log messages are sent in real-time are not lost in the event of a desktop crash. A remote log server should be set up to receive them. e.g. rsyslog which can write each machine's log to a separate file. This is particularly important for the offline submit mechanism (ioisubmit).
 - Set stack limit to match the value used by CMS (infinity), for example in `/etc/security/limits.conf`
-- Firefox sometimes saves downloaded files into `$TMPDIR` (e.g. if "Open with..." is used). This may lead some students to save their work in /tmp, which will unknowingly be lost on reboot. A safe solution would be to wrap Firefox with a script to set `TMPDIR=$HOME/tmp/` first (and mkdir the directory). Or perhaps set `TMPDIR` for the whole desktop session.
+- Disable Linux's address space randomisation (set `/proc/sys/kernel/randomize_va_space` to 0, using an entry in `/etc/sysctl.d/`) to make debugging easier.
+- Firefox sometimes saves downloaded files into `$TMPDIR` (e.g. if "Open with..." is used). This may lead some students to save their work in /tmp, which will unknowingly be lost on reboot. Preferably set `TMPDIR=$HOME/tmp/` for the whole desktop session (and mkdir the directory).
 - Distribute as much as possible by some versioned means (e.g. CMS or a SCM tool).
   - Debian packages can be created which maintain a list of dependencies and/or include files to be placed anywhere on the filesystem. A locally-hosted apt repository can make the maintenance of machines much easier.
   - e.g. a ioi-contestant-software package can depend on all provided software versions. an ioi-contestant-settings package can install any miscellaneous configuration and tweaks required.
   - At IOI 2013, CMS was packaged as Debian packages which were deployed to server and worker machines
-  - CEOI2015 used Git to distribute CMS to workers.
+  - CEOI 2024 used Git to distribute CMS to workers.
   - Some IOIs also used Ansible.
 
 ## Determinism
@@ -100,6 +102,9 @@ that validates and can alter the configuration for many (but not all) of the set
 - Make sure that kernel support for transparent huge pages is disabled: `/sys/kernel/mm/transparent_hugepage/enabled` and `/sys/kernel/mm/transparent_hugepage/defrag` should be set to `madvise` or `never`, `/sys/kernel/mm/transparent_hugepage/khugepaged/defrag` to 0.
 - Consider using the `isolcpu` kernel parameter to prevent the OS from scheduling regular processes on the same CPU as the ones used for evaluation.
 - Consider disabling hyperthreading on CPUs that support it (most Intel CPUs).
+- Recent Intel CPUs have two types of cores: performance and efficiency.
+  On grading workers, disable the efficiency cores or pin sandboxes on the performance
+  cores.
 - In IOI 2020/2021, workers were AWS c5.metal instances. It was concluded that using bare metal instances resulted in more deterministic execution times as supposed to non-bare metal instances.
 - In some instances, specifying CPU idle states in BIOS did help increase determinism.
   (I.e., adding `intel_idle.max_cstate=0,intel_pstate=disable` to `GRUB_CMDLINE_LINUX`.)
@@ -124,23 +129,41 @@ Depending on your network and hardware, no further optimisation may be required.
   - The second partition is the USER space, which can be easily reset before/after each contest day.
 - In 2015, attempting to re-image all machines simultaneously ended up being very slow, due to excessive retransmissions of lost packets. Re-imaging just one quarter of machines at a time allowed the imaging to complete quickly, and still allowed all machines to be re-imaged in under 15 minutes.
 
+Between contest days (and also between practice competition and the first contest day),
+all files which might have been created or modified by the contestants must be erased.
+Such files can appear at unexpected locations (have you ever hidden your editor
+configuration in the user's crontab?), some even not owned by the user. It is therefore
+recommended to re-image the machines, or at least to use a file system with snapshots
+and revert to a clean snapshot.
+
 ## Worker provisioning
 
 - HTC must tell HSC requirements for task time and memory limits, and also time required for checkers
 - For typical task evaluation times (e.g. < 1 minute), 1 worker to 20 students has been a successful rule of thumb, with provision for 3x more than that for safety. e.g. a contest with 300 students should have at least 300 / 20 x 3 = 45 workers
-- test evaluation of a while(1) solution, and a sleep(inf) solution
+- Beware that workers can use substantial disk space by caching of test data and compiled executables.
 
 ## Database setup
 
 - PostgreSQL replication to a hot-standby slave is reasonably easy to set up, and allows for the entire contest database to be in a consistent state in the event of a DB server failure, without significant loss of data.
 - At the end of the competition, you can also simply decouple the replication and use the slave to dump the database, rather than waiting for a dump to complete before you can allow appeals submissions to begin.
 - pg_dump may refuse to complete on a slave if there are rows being deleted from the database. So you should stop replication first, or dump on the primary.
-- pg_reload from a dumped SQL file can be unreliable with LO. Always check for errors when restoring the database, and check that large objects get restored correctly. The bug may be related to auto vacuum co-inciding with restore.
+- pg_reload from a dumped SQL file can be unreliable with large objects. Always check for errors when restoring the database, and check that large objects get restored correctly. The bug may be related to auto vacuum co-inciding with restore.
 
-## Things to simulate before the contest
+## Backup
 
-- simulate entire contest (we have dumps from previous years in the ITC archive)
-- `while(1)` solutions
+You should regularly back up home directories of contestants' machines, reasonable
+frequency is about once per 10 minutes. It is useful to keep all versions.
+We suggest using `rsync` with:
+
+- `--link-dest` to hard-link files which did not change from the previous backup
+- `--max-size` to avoid backing up large files (e.g., larger than 10 MB)
+- `--exclude` directories with non-interesting, but frequently changing files like `.cache`
+and `.mozilla`.
+
+## Things to test before the contest
+
+- simulate an entire contest (we have dumps from previous years in the ITC archive)
+- evaluation of a `while(1)` solution and a `sleep(inf)` solution
 - deleting, adding and replacing test cases, while the competition is in flight. Can you re-evaluate everything in time?
 
 The steps for deleting, adding, and replacing test cases, changing bounds, etc, should be documented so that in the heat of the contest, no steps are forgotten.
@@ -150,17 +173,16 @@ The steps for deleting, adding, and replacing test cases, changing bounds, etc, 
 - Power outages: if backup power systems are in place, they should be tested.
 - Load test ContestWebService by simulating all the contestants downloading statements and attachments at once. In IOI 2020/2021, this was performed using apache bench.
 
-## Practice Competition
-
-- How will keyboards/mice/mascots be collected, registered and re-distributed to the correct machines?
-
 ## Contest procedures
 
+- How will keyboards/mice/mascots be collected, registered and re-distributed to the correct machines?
+    - If an item is rejected, the team leader should be notified early enough
+      to communicate it to the contestant before the quarantine starts.
 - How will the students request clarifications? Some students may not be able to input questions in their native language on a keyboard, so will require a paper form to allow translation. (IOI 2022: Matrix used to send photos of the forms to the GA mailing list for translation.)
 - Will the students have paper and pens?
 - Will the students be provided with food and water? (Dry snacks are preferable, without noisy wrappers)
 - Announcements should be published in a known place accessible from the students computer. No verbal announcements should be made, other than “There is an announcement. See the announcements page”. Students should also know to check the announcements page after bathroom breaks.
-- Students should be notified that submissions near the end of contest may not be judged before the contest finishes (although are still evaluated after the contest and contribute to their score)
+- Students should be notified that submissions near the end of contest may not be judged before the contest finishes (although are still evaluated after the contest and contribute to their score).
 - You will need people on the contest floor during the competition able to debug issues with machines, or direct to those who can. All issues with contestant machines should be logged, in case of appeals.
 
 ## Appeals
@@ -170,8 +192,8 @@ There is little time between the end of the competition and the start of appeals
 - Judging needs to complete. Perhaps a re-judge to ensure stability of results (border-line timeout cases are inevitably going to change the results, so don't worry if they do but stick with the results shown to the students the first time!)
 - During the contest, for several reasons, the connection between ProxyService and Ranking instances may experience data losses. In this case, some or all instances might miss a submission. To ensure rankings are all up to date, restart ProxyService once the judging is finished. ProxyService sends a fresh copy of the latest data at start time. Make sure that this transfer succeeds on all instances. Double check the data on ranking instances with the ranking from admin to make sure they match.
 - The state of the contest database should be dumped for posterity.
-- Test data must be made available to students, along with a mechanism to allow students to run their solutions on the provided test data. CMS now provides an "analysis mode" to support this.
-- Students should be able to download their submissions (on day 2, you may want to provide access to both day 1 and day 2 submissions)
+- Test data must be made available to students, along with a mechanism to allow students to run their solutions on the provided test data. CMS provides an "analysis mode" to support this.
+- Students should be able to download their submissions (on day 2, you may want to provide access to both day 1 and day 2 submissions). In 2024, we used the [mailer script](https://github.com/ioi/solution-mailer) to mail out the submissions to team leaders.
 - Appeals forms should be ready.
 
 ## Organisational aspects
@@ -191,9 +213,10 @@ There is little time between the end of the competition and the start of appeals
 
 ## Printing of translations
 
-- The volume of task statements including translations is quite large. For example, English statements of Day 1 in 2023 had 16 pages. Multiplied by 360 contestants, it is almost 6000 pages for English only.
-- Having at least 3 printers capable of printing at least 50 pages per minute is desirable.
-- For 2024, we plan to print everything for a single contestant as a single print job with a banner sheet containing the ID of the contestant and expected contents of their envelope.
+- The volume of task statements including translations is quite large. For example, English statements of Day 1 in 2023 had 16 pages. Multiplied by 360 contestants, it is almost 6000 pages for English only. Translations will have similar volume.
+- We suggest having at least 3 printers capable of printing at least 40 pages per minute.
+- The printers should be accessible from the translation network and also from the translation server.
+- The translation server prints all papers for a single contestant as a single print job with a banner sheet containing the ID of the contestant and expected contents of their envelope.
 
 ## Notes from 2015
 
