@@ -218,13 +218,10 @@ There is little time between the end of the competition and the start of appeals
 - The printers should be accessible from the translation network and also from the translation server.
 - The translation server prints all papers for a single contestant as a single print job with a banner sheet containing the ID of the contestant and expected contents of their envelope.
 
-## Notes from 2015
+## Assorted notes
 
-- pg_dump / pg_reload unreliable with LO. Related to auto vacuum maybe? Check errors!
-- RWS, using at least 10 Mbit/sec BW at the end of the competition.
-- Clearing the database between day1 and 2 caused submission ids to be reused, and id clashes in RWS. This can be avoided by using the same database, or simply change all ids in day1 to avoid clashes (e.g., prepending "A"). This will be fixed in the CMS repository.
-- Using LogService may make it easier to monitor issues across all services.
-- Java requires a large memory margin, otherwise it runs the garbage collector too often, which leads to slowdown. We used 2GB for all tasks.
+- 2015: Clearing the database between day1 and 2 caused submission ids to be reused, and id clashes in RWS. This can be avoided by using the same database, or simply change all ids in day1 to avoid clashes (e.g., prepending "A"). This will be fixed in the CMS repository.
+- 2015: Java requires a large memory margin, otherwise it runs the garbage collector too often, which leads to slowdown. We used 2GB for all tasks.
 
 ## Notes from 2020 and 2021 (online IOI format)
 
