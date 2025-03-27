@@ -220,6 +220,9 @@ There is little time between the end of the competition and the start of appeals
 
 ## Assorted notes
 
+- It's extremely easy to get country flags wrong. In particular, they generally have
+  [different aspect ratios](https://en.wikipedia.org/wiki/List_of_national_flags_of_sovereign_states).
+  There is a [repository of flags](https://github.com/ioi/flags) for use in the public ranking list.
 - 2015: Clearing the database between day1 and 2 caused submission ids to be reused, and id clashes in RWS. This can be avoided by using the same database, or simply change all ids in day1 to avoid clashes (e.g., prepending "A"). This will be fixed in the CMS repository.
 - 2015: Java requires a large memory margin, otherwise it runs the garbage collector too often, which leads to slowdown. We used 2GB for all tasks.
 
