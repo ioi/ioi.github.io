@@ -2,6 +2,6 @@
 
 ## Building locally
 
-- `export BUNDLE_PATH=_b
+- `export BUNDLE_PATH=_b`
 - `bundle update`
 - `bundle exec jekyll serve`
