@@ -78,7 +78,7 @@ Extra configuration steps which should be performed on each machine:
 - Disable Linux's address space randomisation (set `/proc/sys/kernel/randomize_va_space` to 0, using an entry in `/etc/sysctl.d/`) to make debugging easier.
 - Stack limit should match the value used by CMS (infinity), for example in `/etc/security/limits.conf`.
   However, truly infinite stack size breaks GCC's address sanitizer, so use a large finite value instead.
-  On the othre hand, VS Code has been seen to break with large stack size, please check it.
+  On the other hand, VS Code has been seen to break with large stack size, please check it.
 
 - Firefox sometimes saves downloaded files into `$TMPDIR` (e.g. if "Open with..." is used). This may lead some students to save their work in /tmp, which will unknowingly be lost on reboot. Preferably set `TMPDIR=$HOME/tmp/` for the whole desktop session (and mkdir the directory).
 - Distribute as much as possible by some versioned means (e.g. CMS or a SCM tool).
