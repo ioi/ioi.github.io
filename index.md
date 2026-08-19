@@ -8,3 +8,5 @@ It lives in the [IOI organization](https://github.com/ioi/) at GitHub.
 It supersedes the technical part of the IOI Wiki.
 
 The main document maintained here is the [IOI Technical Checklist](checklist/).
+
+See also the [list of software for IOI](software/).
